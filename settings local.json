@@ -1,0 +1,14 @@
+{
+  "database": {
+    "path": "checkbook-pro.sqlite3",
+    "type": "sqlite"
+  },
+  "server": {
+    "port": 5000,
+    "host": "localhost"
+  },
+  "app": {
+    "name": "CheckBook Pro",
+    "version": "1.0.56"
+  }
+}

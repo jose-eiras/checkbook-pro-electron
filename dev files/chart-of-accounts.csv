@@ -1,0 +1,106 @@
+Account Code,Account Name,Account Type,Parent Code,Opening Balance,Current Balance,Description
+1000,Bank & Cash,asset,,,,All cash and banking accounts
+1010,Wells Fargo,asset,1000,62190.51,-20532.34,Wells Fargo Checking Account
+1020,Cash on Hand,asset,1000,,,Physical cash in wallet/home
+1100,Investment,asset,,,,Investment and retirement accounts
+1110,Fidelity Investment,asset,1100,,,All Fidelity Investment Accounts
+1200,Property Assets,asset,,,,Real estate and valuable assets
+1210,Home Value,asset,1200,,,Current market value of home
+1220,Vehicle Value,asset,1200,,,Current value of vehicles
+1230,Personal Property,asset,1200,,,Furniture/electronics/jewelry
+2000,Credit Cards,liability,,,,Credit card debts
+2010,Citi Master Card,liability,2000,,29399.27999999999,Primary Master Card
+2020,Costco Visa,liability,2000,,1526.1,Costco Visa Card
+2030,Delta Amex,liability,2000,,,Delta Amex Jose & Alzira cards
+2040,Fidelity Visa,liability,2000,,267.4,Fidelity Visa Card
+2090,Other Cards,liability,2000,,,Any other credit card
+3000,Net Worth,equity,,,,Personal net worth and equity
+3010,Opening Balance,equity,3000,,,Starting net worth balance
+3020,Retained Earnings,equity,3000,,,Accumulated savings over time
+4000,Pension,income,,,,Pension from Employment
+4010,Pension GM,income,4000,,-11297.21,Primary job salary
+4020,Pension Kraft,income,4000,,-12081,Work bonuses and commissions
+4030,Pension Philip Morris,income,4000,,-2219.55,Freelance and part-time income
+4100,Annuity & Distribution,income,,,,Income Distribution from Anuities and Investments
+4110,Annuity Jose,income,4100,,-22725.4,Guardian IRA Annuity Jose
+4120,Annuity Alzira,income,4100,,-1880.4499999999998,Guardian IRA Annuity Alzira
+4130,Fidelity Distribution,income,4100,,-9972,Fidelity Investment Distribution
+4190,Other Income,income,4100,,,Any other personal income
+4200,Social Security,income,,,,Social Security Income
+4210,Social Security Jose,income,4200,,-11182,Social Security Jose
+4220,Social Security Alzira,income,4200,,-5007,Social Security Alzira
+4500,Business & Other,income,,,,Business Income Deposited on Home Account
+4510,Business Income Other,income,4500,,,Book Authoring and Any other Business Income
+4520,Tax Refund,income,4500,,,Tax Refund
+4530,Interest Income,income,4500,,,Interest Income
+4590,Other Income,income,4500,,,Any other non personal income
+5000,Home,expense,,,,Home-related expenses
+5010,Property Tax,expense,5000,,,Annual property taxes
+5020,Home Insurance,expense,5000,,,Homeowners/renters insurance
+5030,Bamboo/Lawn,expense,5000,,1700,Bamboo and Lawn maintenance expense
+5040,Dr.Pool/Pool,expense,5000,,679.2,Dr. Pool and Pool maintenance expense
+5050,Trully Nollen/Exterminator,expense,5000,,340,Trully Nollen and exterminator expense
+5060,Home Repairs,expense,5000,,70,Home Repairs
+5070,HOA Fees,expense,5000,,1152,Homeowners association fees
+5090,Other House Expense,expense,5000,,1532.1000000000001,Any other expense related ot home
+5100,Utilities,expense,,,,Utility bills
+5110,FPL Electricity,expense,5100,,1066.17,FPL Electicity
+5120,AT&T Internet,expense,5100,,140.52,AT&T Internet
+5130,Phone & Cell Phone,expense,5100,,289.27,Consumer cellular and Phone Power
+5140,Sunrise Water/Waste,expense,5100,,1463.96,Sunrise Water & Waste
+5150,TV & Streaming,expense,5100,,,TV & Streaming Subscriptions
+5190,Other Utilities Expense,expense,5100,,,Any Other Utility Expense
+5200,Transportation,expense,,,,Transportation costs
+5210,Car Maintenance,expense,5200,,,Car repair and dealer maintenance
+5220,Gas/Fuel/Tolls,expense,5200,,147.01999999999998,Vehicle fuel costs
+5230,Car Insurance,expense,5200,,,Auto insurance premiums
+5240,Car Registration,expense,5200,,,Car registration
+5250,Uber/Taxi/Train,expense,5200,,33.980000000000004,Uber/Taxi/Train and other transportation expense
+5290,Other Transportation Expense,expense,5200,,,Any Other Transcportation Expense
+5300,Food,expense,,,,Food and dining expenses
+5310,Supermarket/Groceries,expense,5300,,1439.03,Grocery store purchases
+5320,Dining Out,expense,5300,,1104.57,Restaurant and takeout meals
+5330,Breakfast/Coffee/Snacks,expense,5300,,257.13,Coffee shops and snacks
+5390,Other Food Expense,expense,5300,,,Any other food expense
+5400,Health,expense,,,,Medical and health expenses
+5410,Health Insurance,expense,5400,,,Health insurance premiums
+5420,Doctor Visits,expense,5400,,459.4,Medical co-payments
+5430,Dental,expense,5400,,73.09000000000003,Dental care expenses
+5440,Prescriptions,expense,5400,,119.43,Prescription medications
+5450,Vision/Eye Care,expense,5400,,,Eye exams and glasses
+5490,Other Health Expense,expense,5400,,,Any other Health related expense
+5500,Personal Care,expense,,,,Personal care and grooming
+5510,Haircuts/Salon,expense,5500,,327.82,Hair and beauty services
+5520,Clothing/Shoes,expense,5500,,,Clothing purchases
+5530,Personal Care Items,expense,5500,,,Toiletries and personal items
+5590,Other Personal Care Expense,expense,5500,,,Any other personal care expense
+5600,Entertainment,expense,,,,Entertainment and recreation
+5610,Travel,expense,5600,,14393.75,Movies and live entertainment
+5620,Theater/Movies/Shows,expense,5600,,,Hobby-related expenses
+5630,Sports/Fitness,expense,5600,,528.5799999999999,Midtown/sports/fitness
+5640,Hobbies,expense,5600,,,Vacation and travel expenses
+5690,Other Entertainment,expense,5600,,,Any other Entertainment Expense
+5700,Shopping,expense,,,,General shopping expenses
+5710,Amazon,expense,5700,,553.83,Amazon Household supplies and items
+5720,Paypal,expense,5700,,49.35,Paypal Electronics and gadgets
+5730,Business Expense Other,expense,5700,,,Non-specific store purchases
+5790,Other Shopping,expense,5700,,,Any other shopping expense
+5800,Financial Expenses,expense,,,,Banking and financial fees
+5810,Bank Fees,expense,5800,,8,Banking fees and charges
+5820,Investment Fees,expense,5800,,,Investment account fees
+5830,Life Insurance,expense,5800,,,Life insurance premiums
+5840,Credit Card Interest,expense,5800,,,Interest charges on credit cards
+5890,Other Financial Expenses,expense,5800,,,Any other Financial Services Expense
+5900,Gifts/Familty Care,expense,,,,Tax payments
+5910,Gifts,expense,5900,,229.98000000000002,Gifts to friends and family
+5920,Dan & Stacey,expense,5900,,,Gifts to Family
+5930,Olivia & Elena,expense,5900,,32000,Gifts to Family
+5940,Other Family,expense,5900,,,Gifts to other family members
+5950,Donations,expense,5900,,400,Donation to charity
+5990,Other Gifts/Family Care,expense,5900,,,Any other type of gift
+6000,Taxes,expense,,,,Tax payments
+6010,Federal Income Tax,expense,6000,,5070,Federal income tax payments
+6020,State Income Tax,expense,6000,,,State income tax payments
+6030,Social Security Tax,expense,6000,,,Social Security tax withholding
+6040,Medicare Tax,expense,6000,,,Medicare tax withholding
+6090,Other Taxes/Expenses,expense,6000,,75.99,Any other tax

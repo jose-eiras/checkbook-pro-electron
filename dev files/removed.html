@@ -1,0 +1,504 @@
+            <div id="transactions-page" class="page">
+                <div class="page-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 class="page-title">Transactions</h1>
+                            <p class="page-description">View and manage all transactions</p>
+                        </div>
+                        <button class="btn btn-secondary" onclick="exportTemplateCSV()">TemplateCSV</button>
+                        <button class="btn btn-success" onclick="importTransactionsCSV()">ImportCSV</button>
+                        <button class="btn btn-danger" onclick="exportTransactionsCSV()">ExportCSV</button>                                                
+                        <button class="btn btn-primary" onclick="openTransactionPageAddModal()">Add Transaction</button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card" style="margin-bottom: 2rem;">
+                    <div class="card-content">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Search</label>
+                                <input type="text" id="transaction-search" class="input" placeholder="Search transactions..." onkeyup="filterTransactions()">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Account</label>
+                                <select id="account-filter" class="input" onchange="filterTransactions()">
+                                    <option value="">All Accounts</option>
+                                    <!-- Will be populated by API -->
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Date From</label>
+                                <input type="date" id="date-from" class="input" onchange="filterTransactions()">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label class="form-label">Date To</label>
+                                <input type="date" id="date-to" class="input" onchange="filterTransactions()">
+                            </div>
+                            <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size: 1.25rem; font-weight: 600;">All Transactions</h3>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>From Account</th>
+                                        <th>To Account</th>
+                                        <th>Reference</th>
+                                        <th>Description</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by API -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div id="transaction-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                            <div id="pagination-info" style="color: #6b7280; font-size: 0.875rem;">
+                                Showing 0-0 of 0 transactions
+                            </div>
+                            <div id="pagination-controls" style="display: flex; gap: 0.5rem;">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            
+                <!-- Transaction Detail Report 
+                <div id="transaction-detail" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="font-size: 1.25rem; font-weight: 600;">Transaction Detail Report</h3>
+                            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                                <select id="td-period-filter" class="input" style="width: auto;" onchange="updateTransactionDetailPeriod()">
+                                    <option value="this-month">This Month</option>
+                                    <option value="last-month">Last Month</option>
+                                    <option value="this-year" selected>This Year</option>
+                                    <option value="last-year">Last Year</option>
+                                </select>
+                                <select id="td-account-filter" class="input" style="width: auto;" onchange="updateTransactionDetailPeriod()">
+                                    <option value="">All Accounts</option>
+                                </select>
+                                <button class="btn btn-secondary" onclick="exportTransactionDetailToPDF()">Export PDF</button>
+                                <button class="btn btn-success" onclick="importTransactionsCSV()">ImportCSV</button>
+                                <button class="btn btn-danger" onclick="exportTransactionsCSV()">ExportCSV</button>  
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>To Account</th>
+                                            <th>Reference</th>
+                                            <th>Description</th>
+                                            <th style="text-align: right;">Amount</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by API 
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        -->
+
+
+        async function updateTransactions() {
+            // console.log('🚀 updateTransactions called, currentCheckbookId:', currentCheckbookId);
+            if (!currentCheckbookId) {
+                console.log('❌ No checkbook ID, aborting transaction update');
+                return;
+            }
+
+            try {
+                showLoading('transactions-page');
+                
+                // Clear any cached transaction data
+                window.allTransactions = [];
+                // console.log('🔄 Clearing cached transaction data and fetching fresh data...');
+                
+                const [transactions, accounts] = await Promise.all([
+                    loadTransactions(currentCheckbookId),
+                    getAccountsFromCache()
+                ]);
+                
+                // console.log(`📊 Loaded ${transactions.length} transactions for display`);
+                // console.log('📊 First few transactions:', transactions.slice(0, 3));
+                
+                // Populate account filter with enhanced styling for parent accounts
+                const accountFilter = document.getElementById('account-filter');
+                if (accountFilter) {
+                    const accountsArray = Array.isArray(accounts) ? accounts : [];
+                    const sortedAccounts = accountsArray.sort((a, b) => (a.account_code || '').localeCompare(b.account_code || ''));
+                    accountFilter.innerHTML = '<option value="">All Accounts</option>' +
+                        sortedAccounts.map(account => {
+                            const isParent = !account.parent_code;
+                            if (isParent) {
+                                return `<option value="" disabled style="font-weight: bold; color: var(--banking-blue); background-color: #f8fafc;">${account.account_name}</option>`;
+                            } else {
+                                return `<option value="${account.id}" style="padding-left: 20px;">&nbsp;&nbsp;&nbsp;&nbsp;${account.account_name}</option>`;
+                            }
+                        }).join('');
+                }
+                
+                // Store all transactions for filtering
+                window.allTransactions = transactions;
+                updateTransactionTable(transactions);
+                
+                hideLoading('transactions-page');
+            } catch (error) {
+                console.error('❌ Failed to update transactions:', error);
+                // Clear transactions display on error
+                window.allTransactions = [];
+                updateTransactionTable([]);
+                hideLoading('transactions-page');
+            }
+        }
+
+        // Add manual test function to debug the issue
+        window.testTransactionsLoad = async function() {
+            // console.log('🧪 Testing transactions load manually...');
+            // console.log('Current checkbook ID:', currentCheckbookId);
+            // console.log('Current user:', currentUser);
+            
+            if (!currentCheckbookId) {
+                console.log('❌ No checkbook selected');
+                // Try to set a default checkbook for testing
+                console.log('🔧 Setting default checkbook for testing...');
+                currentCheckbookId = '9000dfce-2000-4261-ac2d-028bdb754064';
+            }
+            
+            try {
+                const transactions = await loadTransactions(currentCheckbookId);
+                console.log('✅ Manual test - got transactions:', transactions.length);
+                updateTransactionTable(transactions);
+            } catch (error) {
+                console.error('❌ Manual test failed:', error);
+            }
+        };
+
+        /*************************************************Filter Transactions on transactions page*************************************************/
+
+        /*
+        function filterTransactions() {
+            if (!window.allTransactions) return;
+            
+            const searchTerm = document.getElementById('transaction-search').value.toLowerCase();
+            const accountFilter = document.getElementById('account-filter').value;
+            const dateFrom = document.getElementById('date-from').value;
+            const dateTo = document.getElementById('date-to').value;
+            
+            let filtered = window.allTransactions.filter(transaction => {
+                // Search filter
+                const searchMatch = !searchTerm || 
+                    (transaction.description && transaction.description.toLowerCase().includes(searchTerm)) ||
+                    (getAccountName(transaction.from_account_id) && getAccountName(transaction.from_account_id).toLowerCase().includes(searchTerm)) ||
+                    (getAccountName(transaction.to_account_id) && getAccountName(transaction.to_account_id).toLowerCase().includes(searchTerm));
+                
+                // Account filter
+                const accountMatch = !accountFilter || 
+                    transaction.from_account_id === accountFilter || 
+                    transaction.to_account_id === accountFilter;
+                
+                // Date filter
+                const transactionDate = new Date(transaction.transaction_date);
+                const dateFromMatch = !dateFrom || transactionDate >= new Date(dateFrom);
+                const dateToMatch = !dateTo || transactionDate <= new Date(dateTo);
+                
+                return searchMatch && accountMatch && dateFromMatch && dateToMatch;
+            });
+            updateTransactionTable(filtered);
+        }
+
+        function clearFilters() {
+            document.getElementById('transaction-search').value = '';
+            document.getElementById('account-filter').value = '';
+            document.getElementById('date-from').value = '';
+            document.getElementById('date-to').value = '';
+            
+            if (window.allTransactions) {
+                updateTransactionTable(window.allTransactions);
+            }
+        }
+
+        // Helper functions for modal data loading
+        async function loadAccountById(accountId) {
+            try {
+                const response = await apiCall(`/accounts/${accountId}`);
+                // Server returns the object directly, not wrapped in data property
+                return response;
+            } catch (error) {
+                console.error('Failed to load account:', error);
+                throw error;
+            }
+        }
+
+        async function loadTransactionsByAccount(accountId) {
+            try {
+                // console.log('Loading transactions for account ID:', accountId);
+                const response = await apiCall(`/transactions/account/${accountId}`);
+                // console.log('Transactions API response:', response);
+                // Server returns the array directly, not wrapped in data property
+                const transactions = Array.isArray(response) ? response : (response.data || []);
+                // console.log('Parsed transactions:', transactions.length, 'transactions');
+                return transactions;
+            } catch (error) {
+                console.error('Failed to load account transactions:', error);
+                return [];
+            }
+        }
+
+        async function loadReconciliationsByAccount(accountId) {
+            try {
+                const response = await apiCall(`/reconciliations/account/${accountId}`);
+                return response.data || [];
+            } catch (error) {
+                console.error('Failed to load reconciliation history:', error);
+                return [];
+            }
+        }
+
+
+        /*
+        // Pagination state
+        let currentTransactionPage = 1;
+        let transactionsPerPage = 50;
+        let filteredTransactions = [];
+
+        function updatePagination(totalTransactions) {
+            const totalPages = Math.ceil(totalTransactions / transactionsPerPage);
+            const startIndex = (currentTransactionPage - 1) * transactionsPerPage + 1;
+            const endIndex = Math.min(currentTransactionPage * transactionsPerPage, totalTransactions);
+            
+            // Update pagination info
+            const paginationInfo = document.getElementById('pagination-info');
+            if (paginationInfo) {
+                paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalTransactions} transactions`;
+            }
+            
+            // Update pagination controls
+            const paginationControls = document.getElementById('pagination-controls');
+            if (paginationControls) {
+                let controlsHTML = '';
+                
+                // Previous button
+                controlsHTML += `<button class="btn ${currentTransactionPage === 1 ? 'btn-secondary' : 'btn-secondary'}" 
+                    style="padding: 0.5rem 0.75rem;" 
+                    onclick="goToTransactionPage(${currentTransactionPage - 1})" 
+                    ${currentTransactionPage === 1 ? 'disabled' : ''}>Previous</button>`;
+                
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === currentTransactionPage) {
+                        controlsHTML += `<button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">${i}</button>`;
+                    } else if (i === 1 || i === totalPages || Math.abs(i - currentTransactionPage) <= 2) {
+                        controlsHTML += `<button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" onclick="goToTransactionPage(${i})">${i}</button>`;
+                    } else if (i === currentTransactionPage - 3 || i === currentTransactionPage + 3) {
+                        controlsHTML += `<span style="padding: 0.5rem;">...</span>`;
+                    }
+                }
+                
+                // Next button
+                controlsHTML += `<button class="btn ${currentTransactionPage === totalPages ? 'btn-secondary' : 'btn-secondary'}" 
+                    style="padding: 0.5rem 0.75rem;" 
+                    onclick="goToTransactionPage(${currentTransactionPage + 1})" 
+                    ${currentTransactionPage === totalPages ? 'disabled' : ''}>Next</button>`;
+                
+                paginationControls.innerHTML = controlsHTML;
+            }
+        }
+
+        /*
+        function goToTransactionPage(page) {
+            const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentTransactionPage = page;
+                updateTransactionTable(filteredTransactions);
+            }
+        }
+        */
+        /*
+        function updateTransactionTable(transactions) {
+            // console.log('🔍 updateTransactionTable called with:', transactions?.length, 'transactions');
+            const tbody = document.querySelector('#transactions-page .table tbody');
+            if (!tbody) {
+                console.error('❌ Transaction table tbody not found!');
+                return;
+            }
+
+            // console.log('✅ Found tbody element, processing transactions...');
+            if (transactions.length === 0) {
+                // console.log('📝 No transactions, showing empty message');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: #6b7280;">
+                            No transactions found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // console.log(`📊 Rendering ${transactions.length} transactions to table...`);
+            // console.log('🔍 First transaction sample:', transactions);
+
+            // Store filtered transactions and apply pagination
+            filteredTransactions = transactions;
+            const startIndex = (currentTransactionPage - 1) * transactionsPerPage;
+            const endIndex = startIndex + transactionsPerPage;
+            const paginatedTransactions = transactions.slice(startIndex, endIndex);
+
+            tbody.innerHTML = paginatedTransactions.map(transaction => `
+                <tr>
+                    <td>${formatDate(transaction.transaction_date)}</td>
+                    <td>${transaction.from_account_name || getAccountName(transaction.from_account_id) || 'Unknown'}</td>
+                    <td>${transaction.to_account_name || getAccountName(transaction.to_account_id) || 'Unknown'}</td>
+                    <td>${transaction.reference_number || '-'}</td>
+                    <td>${transaction.description || ''}</td>
+                    <td style="color: ${transaction.transaction_type === 'credit' ? 'var(--banking-green)' : 'var(--banking-red)'};">
+                        ${transaction.transaction_type === 'credit' ? '+' : '-'}${formatCurrency(Math.abs(transaction.amount))}
+                    </td>
+                    <td><span class="badge ${transaction.is_reconciled ? 'badge-success' : 'badge-warning'}">${transaction.is_reconciled ? 'Cleared' : 'Pending'}</span></td>
+                    <td style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="editTransactionFromPage('${transaction.id}')">Edit</button>
+                        <button class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="deleteTransaction('${transaction.id}')">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            // Update pagination after displaying transactions
+            updatePagination(transactions.length);
+        }
+
+
+                        
+                // Populate account dropdown for transaction detail filter
+                populateTransactionDetailAccountFilter(accounts);
+                
+                // Load Transaction Detail with "This Year" filter (now the default)
+                await updateTransactionDetailPeriod();
+
+/*
+            
+            // Add "All Accounts" option
+            const allAccountsOption = document.createElement('option');
+            allAccountsOption.value = '';
+            allAccountsOption.textContent = 'All Accounts';
+            accountSelect.appendChild(allAccountsOption);
+            
+            if (!accounts || accounts.length === 0) return;
+            
+            // Account types with colors - in proper order
+            const accountTypes = {
+                'asset': 'Assets',
+                'liability': 'Liabilities', 
+                'equity': 'Equity',
+                'income': 'Income',
+                'expense': 'Expenses'
+            };
+            
+            // Add account type options (in blue)
+            Object.keys(accountTypes).forEach(type => {
+                const typeAccounts = accounts.filter(acc => acc.account_type === type);
+                if (typeAccounts.length > 0) {
+                    const option = document.createElement('option');
+                    option.value = `type:${type}`;
+                    option.textContent = accountTypes[type];
+                    option.style.color = 'blue';
+                    option.style.fontWeight = 'bold';
+                    accountSelect.appendChild(option);
+
+                    console.log('-------------->accountSelectCategories', accountSelect)
+                }
+            });
+            
+            // Find parent accounts and group them
+            const parentAccounts = new Map();
+            const childAccounts = [];
+            
+            accounts.forEach(account => {
+                if (!account.parent_code) {
+                    // Check if this is a parent account (has children)
+                    const hasChildren = accounts.some(child => child.parent_code === account.account_code);
+                    if (hasChildren) {
+                        if (!parentAccounts.has(account.account_code)) {
+                            parentAccounts.set(account.account_code, {
+                                parent: account,
+                                children: []
+                            });
+                        }
+                    }
+                } else {
+                    childAccounts.push(account);
+                }
+            });
+            
+            // Group children with their parents
+            childAccounts.forEach(child => {
+                if (parentAccounts.has(child.parent_code)) {
+                    parentAccounts.get(child.parent_code).children.push(child);
+                }
+            });
+            
+            // Add parent account options (in green)
+            parentAccounts.forEach(group => {
+                const option = document.createElement('option');
+                option.value = `parent:${group.parent.account_code}`;
+                option.textContent = group.parent.account_name;
+                option.style.color = 'green';
+                option.style.fontWeight = 'bold';
+                accountSelect.appendChild(option);
+
+                console.log('-------------->accountSelectParents', accountSelect)
+            });
+        }
+
+                 await updateTransactionDetailPeriod();    
+                 
+                 
+                 
+        async function exportTemplateCSV() {
+            try {
+                // Create template with proper column headers and one example row
+                const templateData = [
+                    {
+                        'Date': '2025-01-15',
+                        'From Account': 'Wells Fargo Checking',
+                        'To Account': 'Office Supplies',
+                        'Reference': 'CHK001',
+                        'Description': 'Office supplies purchase',
+                        'Amount': '150.00',
+                        'Status': 'Pending'
+                    }
+                ];
+                exportToCSV(templateData, 'transaction_template.csv');
+                showNotification('Transaction template exported successfully', 'success');
+            } catch (error) {
+                console.error('Error exporting template:', error);
+                showNotification('Failed to export template', 'error');
+            }
+        }

@@ -1,0 +1,36 @@
+﻿Account Code,Account Name,Account Type,Parent Code,Opening Balance,Current Balance,Description
+1000,Bank & Cash,asset,,,,Bank & Cash
+1010,Capital One,asset,1000,,,Capital One
+1020,Paypal,asset,1000,,,Paypal
+1100,Investment,asset,,,,Investment
+1110,Investment Account,asset,1100,,,Investment Account
+1200,Property Assets,asset,,,,Property Assets
+1210,Busines Assets,asset,1200,,,Business Assets
+2000,Credit Cards,liability,,,,Credit Cards
+2010,Savor,liability,2000,,,Savor
+3000,Net Worth,equity,,,,Net Worth
+3010,Owner's Equity,equity,3000,,,Owner's Equity
+3020,Retained Earnings,equity,3000,,,Retained Earnings
+3030,Owner's Withdrawals,equity,3000,,,Owner's Withdrawals
+4000,Sales and Royalties,income,,,,Sales and Royalties
+4010,Wiley,income,4000,,,Wiley
+4020,Consulting,income,4000,,,Consulting
+4520,Tax Refund,income,4500,,,Tax Refund
+4530,Interest Income,income,4500,,,Interest Income
+4590,Other Income,income,4500,,,Other Income
+5000,Business Expenses,expense,,,,Business Expenses
+5010,Adventising,expense,5000,,,Adventising
+5020,Travel & Meals,expense,5000,,,Travel & Meals
+5030,Communication,expense,5000,,,Communication
+5040,Contract Labor,expense,5000,,,Contract Labor
+5050,Legal & Professional,expense,5000,,,Legal & Professional
+5060,Office Expenses,expense,5000,,,Office Expenses
+5070,Supplies,expense,5000,,,Supplies
+5090,Other Business Expenses,expense,5000,,,Other Business Expenses
+5100,Non-Business Expenses,expense,,,,Non-Business Expenses
+5110,Purchases,expense,5100,,,Purchases
+5120,Services,expense,5100,,,Services
+5130,Other Non-Business,expense,5100,,,Other Non-Business
+6000,Taxes,expense,,,,Taxes
+6010,Federal Income Tax,expense,6000,,,Federal Income Tax
+6090,Other Taxes/Expenses,expense,6000,,,Other Taxes/Expenses

@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheckBook Pro - Financial Management System</title>
+    <link rel="stylesheet" type="text/css" href="style.css?v=1.0">
+</head>
+<body>
+
+    <!-- Login Page -->
+    <div id="login-page" class="page">
+        <div class="login-container">
+            <div class="card login-card">
+                <div class="card-content">
+                    <div class="login-header">
+                        <div class="login-logo">🏛️</div>
+                        <h1 style="font-size: 1.5rem; font-weight: bold; color: var(--banking-gray);">CheckBook Pro</h1>
+                        <p style="color: #6b7280; font-size: 0.875rem;">Professional Financial Management</p>
+                    </div>
+
+                    <form id="login-form" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="input" name="username" placeholder="Enter username" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Checkbook</label>
+                            <select class="input" name="checkbook" id="login-checkbook-select" required>
+                                <option value="">Select checkbook</option>
+                            </select>
+                        </div>                        
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="input" name="password" placeholder="Enter password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                            Sign In
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Layout -->
+    <div id="app-layout" class="page">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">🏛️</div>
+                <div>
+                    <h2 style="font-weight: bold; color: var(--banking-gray);">CheckBook Pro</h2>
+                    <p style="font-size: 0.875rem; color: #6b7280;">Personal Finances</p>
+                </div>
+            </div>
+
+            <div class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard" onclick="setActiveNavItem(this); showPage('dashboard')">
+                    📊 Dashboard
+                </a>
+                <a href="#" class="nav-item" data-page="assets-liabilities" onclick="setActiveNavItem(this); showPage('assets-liabilities')">
+                    🏦 Assets & Liabilities
+                </a>
+                <a href="#" class="nav-item" data-page="transactions" onclick="setActiveNavItem(this); showPage('transactions')">
+                    ↔️ Transactions
+                </a>
+                <a href="#" class="nav-item" data-page="reports" onclick="setActiveNavItem(this); showPage('reports')">
+                    📈 Reports
+                </a>
+                <a href="#" class="nav-item" data-page="admin" onclick="setActiveNavItem(this); showPage('admin')" id="admin-nav-item">
+                    ⚙️ Admin
+                </a>
+                
+                <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                    <div style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">
+                        👤 admin@checkbook.com
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="logout()">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div id="dashboard-page" class="page active">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-description">Financial overview and recent activity</p>
+                </div>
+
+                <!-- Financial Summary Cards - Side by Side Layout -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 300px; gap: 1.5rem; margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Month to Date</span>
+                            <span class="stat-icon">📅</span>
+                        </div>
+                        <table class="table" style="margin: 0;">
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 0.75rem; color: #6b7280; font-weight: 500;">Income</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--banking-green);" id="mtd-income">$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.75rem; color: #6b7280; font-weight: 500;">Expenses</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--banking-red);" id="mtd-expenses">$0.00</td>
+                                </tr>
+                                <tr style="border-top: 2px solid #e5e7eb;">
+                                    <td style="padding: 0.75rem; color: #374151; font-weight: 600;">Net</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 700;" id="mtd-net">$0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Year to Date</span>
+                            <span class="stat-icon">📊</span>
+                        </div>
+                        <table class="table" style="margin: 0;">
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 0.75rem; color: #6b7280; font-weight: 500;">Income</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--banking-green);" id="ytd-income">$0.00</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0.75rem; color: #6b7280; font-weight: 500;">Expenses</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 600; color: var(--banking-red);" id="ytd-expenses">$0.00</td>
+                                </tr>
+                                <tr style="border-top: 2px solid #e5e7eb;">
+                                    <td style="padding: 0.75rem; color: #374151; font-weight: 600;">Net</td>
+                                    <td style="padding: 0.75rem; text-align: right; font-weight: 700;" id="ytd-net">$0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Quick Actions</span>
+                            <span class="stat-icon">⚡</span>
+                        </div>
+                        <div class="space-y-3">
+                            <button style="margin-bottom: .5rem;" class="btn btn-primary w-full" onclick="showPage('assets-liabilities')">
+                                ➕ Add Transaction
+                            </button>
+                            <button style="margin-bottom: .5rem;" class="btn btn-secondary w-full" onclick="showPage('transactions')">
+                                📋 View All Transactions
+                            </button>
+                            <button class="btn btn-secondary w-full" onclick="showPage('reports')">
+                                📊 Reports
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size: 1.25rem; font-weight: 600;">Recent Transactions</h3>
+                        <p style="color: #6b7280; font-size: 0.875rem;">Last 5 transactions</p>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-container">
+                            <table class="table" id="recent-transactions-table">
+                                <thead style="background-color: #f9fafb;">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>From Account</th>
+                                        <th>To Account</th>
+                                        <th>Description</th>
+                                        <th style="text-align: right;">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by API -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assets & Liabilities Page -->
+            <div id="assets-liabilities-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Assets & Liabilities</h1>
+                    <p class="page-description">Manage your accounts and balances</p>
+                </div>
+
+                <!-- Side by Side Layout -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                    <!-- Assets Section -->
+                    <div class="assets-section">
+                        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--banking-gray); margin-bottom: 1rem; display: flex; align-items: center;">
+                            📈 Assets
+                        </h2>
+                        
+                        <div style="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                            <div class="account-grid">
+                                <!-- Will be populated by API -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Liabilities Section -->
+                    <div class="liabilities-section">
+                        <h2 style="font-size: 1.5rem; font-weight: 600; color: var(--banking-gray); margin-bottom: 1rem; display: flex; align-items: center;">
+                            💳 Liabilities
+                        </h2>
+                        
+                        <div style="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                            <div class="account-grid">
+                                <!-- Will be populated by API -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Information Card -->
+                <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                    <div class="card-content" style="text-align: center;">
+                        <h3 style="font-size: 1.125rem; font-weight: 600; color: var(--banking-gray); margin-bottom: 0.5rem;">Account Management</h3>
+                        <p style="color: #6b7280; margin-bottom: 1rem;">Click on any account above to:</p>
+                        <div style="display: flex; justify-content: center; gap: 1.5rem; font-size: 0.875rem;">
+                            <div style="display: flex; align-items: center;">
+                                <span style="margin-right: 0.5rem;">➕</span>
+                                <span>Add new transactions</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <span style="margin-right: 0.5rem;">📋</span>
+                                <span>View transaction history</span>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <span style="margin-right: 0.5rem;">✅</span>
+                                <span>Reconcile account balances</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Page -->
+            <div id="transactions-page" class="page">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 15px;">Transactions Report</h3>
+                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                            <select id="td-period-filter" class="input" style="width: auto;" onchange="updateTransactionDetailPeriod()">
+                                <option value="this-month">This Month</option>
+                                <option value="last-month">Last Month</option>
+                                <option value="this-year" selected>This Year</option>
+                                <option value="last-year">Last Year</option>
+                            </select>
+                            <select id="td-account-filter" class="input" style="width: auto;" onchange="updateTransactionDetailPeriod()">
+                                <option value="">All Accounts</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="exportTransactionDetailToPDF()">Export PDF</button>
+                            <button class="btn btn-success" onclick="importTransactionsCSV()">ImportCSV</button>
+                            <button class="btn btn-danger" onclick="exportTransactionsCSV()">ExportCSV</button>  
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>To Account</th>
+                                        <th>Reference</th>
+                                        <th>Description</th>
+                                        <th style="text-align: right;">Amount</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Will be populated by API -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Page -->
+            <div id="reports-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Reports</h1>
+                    <p class="page-description">Financial reports and analysis</p>
+                </div>
+
+                <!-- Report Tabs -->
+                <div class="tabs">
+                    <div class="tab-list">
+                        <button class="tab active" onclick="setActiveTab(this, 'chart-of-accounts')">Chart of Accounts</button>
+                        <button class="tab" onclick="setActiveTab(this, 'profit-loss')">Profit & Loss</button>
+                        <button class="tab" onclick="setActiveTab(this, 'balance-sheet')">Balance Sheet</button>                     
+                    </div>
+                </div>
+
+                <!-- Chart of Accounts Report -->
+                <div id="chart-of-accounts" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="font-size: 1.25rem; font-weight: 600;">Chart of Accounts</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-secondary" onclick="exportToPDF('chart-of-accounts', 'chart-of-accounts.pdf')">Export PDF</button>
+                                <button class="btn btn-secondary" onclick="exportChartOfAccountsCSV()">Export CSV</button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Account Name</th>
+                                            <th>Type</th>
+                                            <th>Current Balance</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by API -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profit & Loss Report -->
+                <div id="profit-loss" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="font-size: 1.25rem; font-weight: 600;">Profit & Loss Statement</h3>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <select id="pl-period-filter" class="input" style="width: auto;" onchange="updateProfitLossPeriod()">
+                                    <option value="this-month">This Month</option>
+                                    <option value="last-month">Last Month</option>
+                                    <option value="this-year">This Year</option>
+                                    <option value="last-year">Last Year</option>
+                                </select>
+                                <button class="btn btn-secondary" onclick="exportProfitLossToPDF()">Export PDF</button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Account</th>
+                                            <th style="text-align: right;">Amount</th>
+                                            <th style="text-align: right;">% of Income</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by API -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balance Sheet Report -->
+                <div id="balance-sheet" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="font-size: 1.25rem; font-weight: 600;">Balance Sheet</h3>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span style="color: #6b7280;">As of August 31, 2025</span>
+                                <button class="btn btn-secondary" onclick="exportBalanceSheetToPDF()">Export PDF</button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="grid-cols-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                <!-- Assets -->
+                                <div>
+                                    <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--banking-gray);">Assets</h4>
+                                    <div class="table-container">
+                                        <table class="table">
+                                            <tbody>
+                                                <!-- Will be populated by API -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Liabilities & Equity -->
+                                <div>
+                                    <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--banking-gray);">Liabilities & Equity</h4>
+                                    <div class="table-container">
+                                        <table class="table">
+                                            <tbody>
+                                                <!-- Will be populated by API -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Admin Page -->
+            <div id="admin-page" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Admin Panel</h1>
+                    <p class="page-description">Manage users, checkbooks, and chart of accounts</p>
+                </div>
+
+                <!-- Admin Tabs -->
+                <div class="tabs">
+                    <div class="tab-list">
+                        <button class="tab active" onclick="setActiveTab(this, 'admin-users')">Users</button>
+                        <button class="tab" onclick="setActiveTab(this, 'admin-checkbooks')">Checkbooks</button>
+                        <button class="tab" onclick="setActiveTab(this, 'admin-accounts')">Chart of Accounts</button>
+                    </div>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="admin-users" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="font-size: 1.25rem; font-weight: 600;">User Management</h3>
+                            <button class="btn btn-primary" onclick="openAddUserModal()">Add User</button>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Username</th>
+                                            <th>Role</th>
+                                            <th>Checkbook</th>
+                                            <th>Created</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by API -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Checkbooks Tab -->
+                <div id="admin-checkbooks" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="font-size: 1.25rem; font-weight: 600;">Checkbook Management</h3>
+                            <button class="btn btn-primary" onclick="openAddCheckbookModal()">Add Checkbook</button>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Checkbook Name</th>
+                                            <th>Users</th>
+                                            <th>Accounts</th>
+                                            <th>Transactions</th>
+                                            <th>Created</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by API -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart of Accounts Tab -->
+                <div id="admin-accounts" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 style="font-size: 1.25rem; font-weight: 600;">Chart of Accounts</h3>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-secondary" onclick="importChartOfAccountsCSV()">Import CSV</button>
+                                <button class="btn btn-secondary" onclick="exportChartOfAccountsCSV()">Export CSV</button>
+                                <button class="btn btn-primary" onclick="openAddAccountModal()">Add Account</button>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Account Name</th>
+                                            <th>Type</th>
+                                            <th>Parent</th>
+                                            <th>Opening</th>                                           
+                                            <th>Balance</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Will be populated by API -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS START HERE -->
+
+    <!-- Account Modal -->
+    <div id="account-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 28rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Account</h2>
+                <button class="modal-close" onclick="closeModal('account-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="handleSubmit(event)">
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Account Code</label>
+                            <input type="text" class="input" name="account_code" placeholder="e.g., 1020">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Parent Code</label>
+                            <input type="text" class="input" name="parent_code" placeholder="Auto-calculated" readonly>
+                            <small class="text-gray-500">Automatically set based on first 2 digits + 00</small>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Account Name</label>
+                            <input type="text" class="input" name="account_name" placeholder="Enter account name">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Account Type</label>
+                            <select class="select" name="account_type">
+                                <option value="asset">Asset</option>
+                                <option value="liability">Liability</option>
+                                <option value="equity">Equity</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Opening Balance</label>
+                            <input type="text" class="input" name="opening_balance" placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description (Optional)</label>
+                            <textarea class="textarea" name="description" placeholder="Account description..."></textarea>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('account-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Transaction Modal -->
+    <div id="add-transaction-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 48rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Transaction</h2>
+                <button class="modal-close" onclick="closeAddTransactionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Selected Account Info (From Account) - Only shown when opened from account cards -->
+                <div class="info-card" id="from-account-info" style="display: none;">
+                    <div class="info-card-grid grid-cols-2">
+                        <div class="info-item">
+                            <span class="info-label">From Account</span>
+                            <span class="info-value">Select Account</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Current Balance</span>
+                            <span class="info-value" style="color: var(--banking-green);">Select accounts below</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form onsubmit="handleSubmit(event)">
+                    <!-- From Account Selector - Only shown when opened from Transactions page -->
+                    <div id="from-account-selector" style="display: none; margin-bottom: 1.5rem;">
+                        <div class="form-group">
+                            <label class="form-label">From Account <span class="required">*</span></label>
+                            <select class="select" name="fromAccount" id="fromAccountSelect">
+                                <option value="">Select account</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3">
+                        <div class="form-group">
+                            <label class="form-label">Date <span class="required">*</span></label>
+                            <input type="date" class="input" name="date">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Reference</label>
+                            <input type="text" class="input" name="referenceNumber" placeholder="Check number, etc.">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Transaction Type <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="debit" name="transaction_type" class="radio" value="debit">
+                                    <label style="color: var(--banking-red);"for="debit">Debit <span style="font-size: .75rem;">(Withdrawals, Money Out)</span></label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="credit" name="transaction_type" class="radio" value="credit">
+                                    <label style="color: var(--banking-green);" for="credit">Credit <span style="font-size: .75rem;">(Deposits, Money In)</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3">
+                        <div class="form-group">
+                            <label class="form-label">To Account <span class="required">*</span></label>
+                            <select class="select" name="toAccount">
+                                <option value="">Select account</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Amount <span class="required">*</span></label>
+                            <input type="text" class="input" name="amount" placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="input" name="description" placeholder="Transaction description">
+                        </div>
+                    </div>               
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="closeAddTransactionModal()">Cancel</button>
+                        <button type="submit" class="btn btn-success" name="action" value="next">Add Transaction/Next</button>                       
+                        <button type="submit" class="btn btn-primary" name="action" value="exit">Add Transaction/Exit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="edit-transaction-modal" class="modal-overlay" style="z-index: 10001;">
+        <div class="modal-content" style="max-width: 48rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Edit Transaction</h2>
+                <button class="modal-close" onclick="closeEditTransactionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Transaction Info -->
+                <div class="info-card">
+                    <div class="info-card-grid grid-cols-1">
+                        <div class="info-item">
+                            <span class="info-label">From Account</span>
+                            <span class="info-value">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form onsubmit="handleSubmit(event)">
+                    <!-- Hidden field to store from_account_id -->
+                    <input type="hidden" name="fromAccount" id="edit-from-account-id">
+                    <div class="grid grid-cols-3">
+                        <div class="form-group">
+                            <label class="form-label">Date <span class="required">*</span></label>
+                            <input type="date" class="input" name="date">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Reference</label>
+                            <input type="text" class="input" name="referenceNumber" placeholder="Check number, etc.">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Transaction Type <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" id="debit-edit" name="transaction_type" class="radio" value="debit">
+                                    <label style="color: var(--banking-red);"for="debit-edit">Debit <span style="font-size: .75rem;">(Withdrawals, Money Out)</span></label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" id="credit-edit" name="transaction_type" class="radio" value="credit">
+                                    <label style="color: var(--banking-green);" for="credit-edit">Credit <span style="font-size: .75rem;">(Deposits, Money In)</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3">
+                        <div class="form-group">
+                            <label class="form-label">To Account <span class="required">*</span></label>
+                            <select class="select" name="toAccount">
+                                <option value="">Select account</option>
+                            </select>
+                        </div>                        
+                        <div class="form-group">
+                            <label class="form-label">Amount <span class="required">*</span></label>
+                            <input type="text" class="input" name="amount" placeholder="0.00">
+                        </div>
+                            <div class="form-group">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="input" name="description" placeholder="Transaction description">
+                        </div> 
+                    </div>               
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="closeEditTransactionModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions List Modal -->
+    <div id="list-transactions-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 72rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Transaction Management</h2>
+                <button class="modal-close" onclick="closeModal('list-transactions-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Account Details -->
+                <div class="info-card">
+                    <div class="info-card-grid grid-cols-4">
+                        <div class="info-item">
+                            <span class="info-label">Account Name</span>
+                            <span class="info-value" style="color: var(--banking-blue);">Checking Account</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Account Type</span>
+                            <span class="info-value">Asset</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Current Balance</span>
+                            <span class="info-value" style="color: var(--banking-green); font-size: 1.125rem;">$12,345.67</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Account Code</span>
+                            <span class="info-value" style="font-family: monospace;">1010</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search, Add Transaction and Close on same row -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: center;">
+                    <div style="position: relative; flex: 1;">
+                        <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #6b7280;">🔍</span>
+                        <input type="text" class="input" style="padding-left: 2.5rem;" placeholder="Search transactions...">
+                    </div>
+                    <button class="btn btn-primary" onclick="addTransactionFromTransactionList()" style="white-space: nowrap;">Add Transaction</button>
+                    <button class="btn btn-secondary" onclick="closeModal('list-transactions-modal')">Close</button>
+                </div>
+
+
+                <!-- Transactions Table -->
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>To Account</th>
+                                <th>Reference</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2rem; color: #6b7280;">
+                                    Loading transactions...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                    <div style="color: #6b7280; font-size: 0.875rem;">
+                        Showing 1-15 of 47 transactions
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">Previous</button>
+                        <button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">1</button>
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">2</button>
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">3</button>
+                        <button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;">Next</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Reconcile Modal -->
+    <div id="reconcile-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 72rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Reconcile Account</h2>
+                <button class="modal-close" onclick="closeModal('reconcile-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Account Details -->
+                <div class="info-card">
+                    <div class="info-card-grid grid-cols-4">
+                        <div class="info-item">
+                            <span class="info-label">Account Name</span>
+                            <span class="info-value" style="color: var(--banking-blue);">Checking Account</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Current Balance</span>
+                            <span class="info-value" style="color: var(--banking-green); font-size: 1.125rem;">$12,345.67</span>
+                        </div>
+                        <!-- Last Reconciliation Info -->
+                        <div class="summary-card">
+                            <div class="summary-label">Last Statement Date</div>
+                            <div class="summary-value" id="last-statement-Date">02/02/2020</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Last Statement Balance</div>
+                            <div class="summary-value" id="liabilities-section">$0.00</div>
+                        </div>                   
+                    </div>
+                </div>
+
+                <!-- Reconciliation Summary Form -->
+                <form onsubmit="handleSubmit(event)">         
+                    <div class="info-card-grid grid-cols-5">
+                        <div class="summary-card">
+                            <label class="form-label">New Stmt. Date <span class="required">*</span></label>
+                            <input type="date" class="input" name="statementDate">
+                        </div>
+                        <div class="summary-card">
+                            <label class="form-label">New Stmt. Balance <span class="required">*</span></label>
+                            <input type="text" class="input" name="statementBalance" placeholder="0.00">
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Debits</div>
+                            <div class="summary-value" id="reconcile-debits" style="color: var(--banking-red);">$0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Credits</div>
+                            <div class="summary-value" id="reconcile-credits" style="color: var(--banking-blue);">$0.00</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Difference</div>
+                            <div class="summary-value" id="reconcile-difference" style="color: var(--banking-gray);">$0.00</div>
+                        </div>
+                    </div>
+                </form> 
+
+                <!-- Pending Transactions -->
+                <div style="margin-bottom: 2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Pending Transactions</h3>
+                        <button class="btn btn-primary" onclick="addTransactionFromReconcile()">Add Transaction</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th><input id="toggle-mark-unmark" type="checkbox" onchange="toggleAllTransactions(this)"></th>
+                                    <th>Date</th>
+                                    <th>To Account</th>
+                                    <th>Reference</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 2rem; color: #6b7280;">
+                                        Loading transactions for reconciliation...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Form submit buttons at bottom -->
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('reconcile-modal')">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="document.querySelector('#reconcile-modal form').dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}))">Complete Reconciliation</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 28rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New User</h2>
+                <button class="modal-close" onclick="closeModal('user-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="handleSubmit(event)">
+
+                    <div class="info-card-grid grid-cols-2">                    
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="input" name="username" placeholder="Enter username">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Checkbook</label>
+                            <select class="select" name="checkbook_id">
+                                <option value="">Select a checkbook</option>
+                                <!-- Will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="info-card-grid grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">User Role</label>
+                            <select class="select" name="user_role">
+                                <option value="user" selected>User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>                   
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="input" name="password" placeholder="Enter password">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('user-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkbook Modal -->
+    <div id="checkbook-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 28rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Checkbook</h2>
+                <button class="modal-close" onclick="closeModal('checkbook-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label class="form-label">Checkbook Name</label>
+                        <input type="text" class="input" name="checkbook_name" placeholder="Enter checkbook name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description (Optional)</label>
+                        <input type="text" class="input" name="description" placeholder="Enter description">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="switch-container">
+                            <div class="switch-label">
+                                <div class="switch-title">Active</div>
+                                <div class="switch-description">Checkbook is active and available for users</div>
+                            </div>
+                            <div class="switch active" onclick="toggleSwitch(this)"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('checkbook-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Checkbook</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Delete Confirmation Dialog (for other items) -->
+    <div id="delete-confirmation" class="modal-overlay alert-dialog">
+        <div class="modal-content">
+            <div class="modal-body" style="text-align: center;">
+                <div class="alert-icon danger">⚠️</div>
+                <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem;">Confirm Delete</h3>
+                <div id="delete-item-details" style="background: #fee2e2; border: 1px solid #fecaca; border-radius: var(--radius); padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Item to delete:</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <p style="color: #6b7280; margin-bottom: 1.5rem;">
+                    This action cannot be undone.
+                </p>
+
+                <div class="alert-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('delete-confirmation')">Cancel</button>
+                    <button class="btn btn-danger" onclick="handleDeleteConfirmation()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  <!--============================== SCRIPTS ====================================== -->
+    <script src="src/start.js"></script>
+    <script src="src/dashboard.js"></script>
+    <script src="src/assets-liabilities.js"></script>
+    <script src="src/transactions.js"></script>
+    <script src="src/reports.js"></script>
+    <script src="src/admin.js"></script>
+    <script src="src/modals.js"></script>
+    <script src="src/import-export.js"></script>
+</body>
+</html>
