@@ -472,8 +472,6 @@ async function handleReconcileSubmit(form) {
             difference: 0.0 // Should be 0 when reconciliation is complete
         };
         
-        
-        
         // Mark transactions as reconciled first (this is the most important part)
         const transactionPromises = await Promise.all(
             transactionIds.map(id => 
@@ -568,7 +566,10 @@ async function handleSubmit(event) {
                 
                 // Keep modal open, don't close it
                 showNotification('Transaction added! Add another transaction.', 'success');
-                
+
+            } else if (modal.id === 'statement-modal') {
+                await handleStatementSubmit((form));
+                closeModal('statement-modal');
             } else if (modal.id === 'edit-transaction-modal') {
                 await handleEditTransactionSubmit(form);
                 closeEditTransactionModal();
@@ -966,7 +967,7 @@ async function populateReconcileModal(account, transactions) {
                     statementBalanceInput.value = lastReconciliation.statement_balance.toFixed(2);
                 }
             } else {
-                if (lastStatementDateEl) lastStatementDateEl.textContent = 'No previous reconciliation';
+                if (lastStatementDateEl) lastStatementDateEl.textContent = 'No last statement';
                 if (lastStatementBalanceEl) lastStatementBalanceEl.textContent = '$0.00';
                 
                 // For first reconciliation, start with current account balance
@@ -1173,53 +1174,6 @@ async function updateRegister() {
     }
 }
 
-// Pagination state
-let currentTransactionPage = 1;
-let transactionsPerPage = 50;
-let filteredTransactions = [];
-
-function updatePagination(totalTransactions) {
-    const totalPages = Math.ceil(totalTransactions / transactionsPerPage);
-    const startIndex = (currentTransactionPage - 1) * transactionsPerPage + 1;
-    const endIndex = Math.min(currentTransactionPage * transactionsPerPage, totalTransactions);
-    
-    // Update pagination info
-    const paginationInfo = document.getElementById('pagination-info');
-    if (paginationInfo) {
-        paginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalTransactions} transactions`;
-    }
-    
-    // Update pagination controls
-    const paginationControls = document.getElementById('pagination-controls');
-    if (paginationControls) {
-        let controlsHTML = '';
-        
-        // Previous button
-        controlsHTML += `<button class="btn ${currentTransactionPage === 1 ? 'btn-secondary' : 'btn-secondary'}" 
-            style="padding: 0.5rem 0.75rem;" 
-            onclick="goToTransactionPage(${currentTransactionPage - 1})" 
-            ${currentTransactionPage === 1 ? 'disabled' : ''}>Previous</button>`;
-        
-        // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === currentTransactionPage) {
-                controlsHTML += `<button class="btn btn-primary" style="padding: 0.5rem 0.75rem;">${i}</button>`;
-            } else if (i === 1 || i === totalPages || Math.abs(i - currentTransactionPage) <= 2) {
-                controlsHTML += `<button class="btn btn-secondary" style="padding: 0.5rem 0.75rem;" onclick="goToTransactionPage(${i})">${i}</button>`;
-            } else if (i === currentTransactionPage - 3 || i === currentTransactionPage + 3) {
-                controlsHTML += `<span style="padding: 0.5rem;">...</span>`;
-            }
-        }
-        
-        // Next button
-        controlsHTML += `<button class="btn ${currentTransactionPage === totalPages ? 'btn-secondary' : 'btn-secondary'}" 
-            style="padding: 0.5rem 0.75rem;" 
-            onclick="goToTransactionPage(${currentTransactionPage + 1})" 
-            ${currentTransactionPage === totalPages ? 'disabled' : ''}>Next</button>`;
-        
-        paginationControls.innerHTML = controlsHTML;
-    }
-}
 function updateReconcileBalance() {
     // Get all checked transactions
     const checkboxes = document.querySelectorAll('#reconcile-modal input[type="checkbox"]:checked');
@@ -1315,4 +1269,87 @@ function updateReconcileBalanceSummary(account, clearedTransactions = []) {
     }
 }
 
+async function addStatement() {
+    try {
+        // Store the current account ID from reconcile modal for returning
+        const modal = document.getElementById('statement-modal');
+        const reconcileModal = document.getElementById('reconcile-modal');
+        const returnAccountId = reconcileModal ? reconcileModal.getAttribute('data-account-id') : null;
+        
+        closeModal('reconcile-modal');
+
+        // Clear form fields
+        const form = modal.querySelector('form');
+        console.log('Form:', form);
+        if (form) {
+            form.reset();
+            // Set today's date as default
+            const dateField = form.querySelector('[name="statement_date"]');
+            console.log('Date field:', dateField);
+            if (dateField) {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                dateField.value = `${year}-${month}-${day}`;
+            }
+        }
+
+        openModal('statement-modal');
+
+    } catch (error) {
+        console.error('Error opening add transaction modal from reconcile:', error);
+        showNotification('Failed to open add transaction form', 'error');
+    }
+}
+
+
+async function handleStatementSubmit(form) {
+
+    console.log('handleStatementSubmit called');
+
+    const formData = new FormData(form);
+    const modal = form.closest('.modal-overlay');
+    const reconcileModal = document.getElementById('reconcile-modal');
+    const accountId = reconcileModal ? reconcileModal.getAttribute('data-account-id') : null;
+
+    // Create reconciliation record matching the database schema exactly
+    const statementData = {
+        checkbook_id: currentCheckbookId,
+        account_id: accountId,
+        statement_date: formData.get('statement_date'),
+        statement_balance: parseFloat(formData.get('statement_balance')),
+        reconciled_balance: parseFloat(formData.get('statement_balance')),
+        difference: 0.0 // Should be 0 when reconciliation is complete
+    };
+    console.log('Statement data to save:', statementData);
+    
+    // Validation
+    if (!statementData.statement_date) {
+        throw new Error('Statement date is required');
+    }
+    if (!statementData.statement_balance) {
+        throw new Error('Statement balance is required');
+    }
+
+    // Save reconciliation record (essential for history tracking)
+    const statementResponse = await fetch(`${API_BASE_URL}/reconciliations`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(statementData)
+    });
+    
+    if (!statementResponse.ok) {
+        const errorDetails = await statementResponse.text();
+        console.error('Failed to save reconciliation record:', errorDetails);
+        
+        // Still show warning but don't fail since transactions were reconciled
+        showNotification('Could no save last statment record.', 'warning');
+    }
+    showNotification(`Last statement data saved successfully!`, 'success');
+    await openReconcileModal(accountId);
+   
+}
 

@@ -16,7 +16,7 @@
             <div class="card login-card">
                 <div class="card-content">
                     <div class="login-header">
-                        <div style="font-size: 48px;">📖</div>
+                        <div><img style="width: 48px;"src="images/logo.png" alt="checkbook logo"></div>
                         <h1 style="font-size: 1.5rem; font-weight: bold; color: var(--banking-gray);">CheckBook Pro</h1>
                         <p style="color: #6b7280; font-size: 0.875rem;">Professional Financial Management</p>
                     </div>
@@ -53,7 +53,7 @@
         <!-- Sidebar -->
         <nav class="sidebar">
             <div class="sidebar-header">
-                <div style="font-size: 48px;">📖</div>
+                <div style="width: 48px;"><img style="width: 48px;"src="images/logo.png" alt="checkbook logo"></div>
                 <div style="text-align: center">
                     <h2 style="font-weight: bold; color: var(--banking-gray);">CheckBook Pro</h2>
                     <p style="font-size: 0.875rem; color: #6b7280;">Personal Finances</p>
@@ -79,7 +79,7 @@
                 
                 <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);">
                     <div style="padding: 0.75rem 1rem; font-size: 0.875rem; color: #6b7280;">
-                        👤 admin@checkbook.com
+                        🦸 admin@checkbook.com
                     </div>
                     <button class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;" onclick="logout()">
                         Sign Out
@@ -232,7 +232,7 @@
             <div id="transactions-page" class="page">
                 <div class="card">
                     <div class="card-header">
-                        <h3 style="font-size: 1.25rem; font-weight: 600;">Transaction Detail Report</h3>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom:10px;">Transaction Detail Report</h3>
                         <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
                             <select id="td-period-filter" class="input" style="width: auto;" onchange="updateTransactionsPeriod()">
                                 <option value="this-month">This Month</option>
@@ -271,7 +271,6 @@
                 </div>
             </div>
       
-
             <!-- Reports Page -->
             <div id="reports-page" class="page">
                 <div class="page-header">
@@ -306,7 +305,7 @@
                                             <th>Code</th>
                                             <th>Account Name</th>
                                             <th>Type</th>
-                                            <th>Current Balance</th>
+                                            <th style="text-align: right;">Current Balance</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -391,49 +390,7 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Transaction Detail Report -->
-                <div id="transaction-detail" class="tab-content">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 style="font-size: 1.25rem; font-weight: 600;">Transaction Detail Report</h3>
-                            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                                <select id="td-period-filter" class="input" style="width: auto;" onchange="updateTransactionDetailPeriod()">
-                                    <option value="this-month">This Month</option>
-                                    <option value="last-month">Last Month</option>
-                                    <option value="this-year" selected>This Year</option>
-                                    <option value="last-year">Last Year</option>
-                                </select>
-                                <select id="td-account-filter" class="input" style="width: auto;" onchange="updateTransactionDetailPeriod()">
-                                    <option value="">All Accounts</option>
-                                </select>
-                                <button class="btn btn-secondary" onclick="exportTransactionDetailToPDF()">Export PDF</button>
-                            </div>
-                        </div>
-                        <div class="card-content">
-                            <div class="table-container">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>To Account</th>
-                                            <th>Reference</th>
-                                            <th>Description</th>
-                                            <th style="text-align: right;">Amount</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <!-- Will be populated by API -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
             </div>
-
             <!-- Admin Page -->
             <div id="admin-page" class="page">
                 <div class="page-header">
@@ -776,7 +733,7 @@
             <div class="modal-body">
                 <!-- Account Details -->
                 <div class="info-card">
-                    <div class="info-card-grid grid-cols-4">
+                    <div class="info-card-grid grid-cols-5">
                         <div class="info-item">
                             <span class="info-label">Account Name</span>
                             <span class="info-value" style="color: var(--banking-blue);">Checking Account</span>
@@ -793,7 +750,11 @@
                         <div class="summary-card">
                             <div class="summary-label">Last Statement Balance</div>
                             <div class="summary-value" id="liabilities-section">$0.00</div>
-                        </div>                   
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Last Statement</div>
+                            <button class="btn btn-primary" onclick="addStatement()">Enter</button>  
+                        </div>              
                     </div>
                 </div>
 
@@ -859,6 +820,34 @@
                     <button type="button" class="btn btn-secondary" onclick="closeReconcileModal()">Cancel</button>
                     <button type="button" class="btn btn-success" onclick="document.querySelector('#reconcile-modal form').dispatchEvent(new Event('submit', {bubbles: true, cancelable: true}))">Complete Reconciliation</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Initial Statement Modal -->
+    <div id="statement-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 28rem;">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Statement</h2>
+                <button class="modal-close" onclick="closeModal('statement-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                 <form onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label class="form-label">Statement Date</label>
+                        <input type="text" class="input" name="statement_date" placeholder="Enter statement date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Statement Amount</label>
+                        <input type="text" class="input" name="statement_balance" placeholder="Enter statement amount">
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('statement-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Statement</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1051,7 +1040,7 @@
             } catch (e) {}
         })();
     </script>
-    -->
+-->
     
 </body>
 </html>

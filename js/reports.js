@@ -192,83 +192,6 @@ async function loadReports(checkbookId) {
     }
 }
 
-// Populate account dropdown for transaction detail filter with hierarchical structure
-function populateTransactionDetailAccountFilter(accounts) {
-    const accountSelect = document.getElementById('td-account-filter');
-    if (!accountSelect) return;
-    
-    // Clear existing options
-    accountSelect.innerHTML = '';
-    
-    // Add "All Accounts" option
-    const allAccountsOption = document.createElement('option');
-    allAccountsOption.value = '';
-    allAccountsOption.textContent = 'All Accounts';
-    accountSelect.appendChild(allAccountsOption);
-    
-    if (!accounts || accounts.length === 0) return;
-    
-    // Account types with colors - in proper order
-    const accountTypes = {
-        'asset': 'Assets',
-        'liability': 'Liabilities', 
-        'equity': 'Equity',
-        'income': 'Income',
-        'expense': 'Expenses'
-    };
-    
-    // Add account type options (in blue)
-    Object.keys(accountTypes).forEach(type => {
-        const typeAccounts = accounts.filter(acc => acc.account_type === type);
-        if (typeAccounts.length > 0) {
-            const option = document.createElement('option');
-            option.value = `type:${type}`;
-            option.textContent = accountTypes[type];
-            option.style.color = 'blue';
-            option.style.fontWeight = 'bold';
-            accountSelect.appendChild(option);
-        }
-    });
-    
-    // Find parent accounts and group them
-    const parentAccounts = new Map();
-    const childAccounts = [];
-    
-    accounts.forEach(account => {
-        if (!account.parent_code) {
-            // Check if this is a parent account (has children)
-            const hasChildren = accounts.some(child => child.parent_code === account.account_code);
-            if (hasChildren) {
-                if (!parentAccounts.has(account.account_code)) {
-                    parentAccounts.set(account.account_code, {
-                        parent: account,
-                        children: []
-                    });
-                }
-            }
-        } else {
-            childAccounts.push(account);
-        }
-    });
-    
-    // Group children with their parents
-    childAccounts.forEach(child => {
-        if (parentAccounts.has(child.parent_code)) {
-            parentAccounts.get(child.parent_code).children.push(child);
-        }
-    });
-    
-    // Add parent account options (in green)
-    parentAccounts.forEach(group => {
-        const option = document.createElement('option');
-        option.value = `parent:${group.parent.account_code}`;
-        option.textContent = group.parent.account_name;
-        option.style.color = 'green';
-        option.style.fontWeight = 'bold';
-        accountSelect.appendChild(option);
-    });
-}
-
 // Tab Navigation
 function setActiveTab(element, tabId) {
     // Get the tab container
@@ -757,13 +680,7 @@ async function updateReports() {
         updateChartOfAccountsReport(chartOfAccountsData.data);
         updateBalanceSheetReport(balanceSheetData.data);
         updateProfitLossReport(profitLossData.data);
-        
-        // Populate account dropdown for transaction detail filter
-        populateTransactionDetailAccountFilter(accounts);
-        
-        // Load Transaction Detail with "This Year" filter (now the default)
-        //await updateTransactionDetailPeriod();
-        
+                
         hideLoading('reports-page');
     } catch (error) {
         console.error('Failed to update reports:', error);

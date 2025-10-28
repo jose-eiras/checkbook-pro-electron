@@ -341,7 +341,6 @@ async function handleAccountSubmit(form, modal) {
     }
 }
 
-
 async function handleCheckbookSubmit(form, modal) {
     // console.log('handleCheckbookSubmit called', {form, modal});
     const formData = new FormData(form);
@@ -504,6 +503,7 @@ function importChartOfAccountsCSV() {
         try {
             const text = await file.text();
             await processAccountsCSVImport(text);
+            await getAccountsFromCache(true);
         } catch (error) {
             console.error('Error importing accounts CSV:', error);
             showNotification('Failed to import accounts CSV file', 'error');
@@ -601,7 +601,6 @@ async function openAddUserModal() {
     
     openModal('user-modal');
 }
-
 
 async function populateCheckbookDropdown() {
     try {
@@ -751,7 +750,7 @@ function updateAccountsTable(accounts) {
             <td>${account.account_type}</td>
             <td>${account.parent_code || '-'}</td>
             <td style="text-align: right;">${formatCurrency(Number(account.opening_balance || 0))}</td>
-            <td>${formatCurrency((account.account_balance || 0) + (account.opening_balance || 0))}</td>
+            <td style="text-align: right;">${formatCurrency((account.account_balance || 0) + (account.opening_balance || 0))}</td>
             <td><span class="badge ${account.is_active ? 'badge-success' : 'badge-warning'}">${account.is_active ? 'Active' : 'Inactive'}</span></td>
             <td>
                 <button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="editAccount('${account.id}')">Edit</button>

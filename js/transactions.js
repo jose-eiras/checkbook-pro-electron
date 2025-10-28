@@ -98,6 +98,7 @@ async function exportTransactionsPDF(reportData, reportTitle, cols) {
     const headers = [];
     const data = [];
     const dataStyle = []
+    let actionColumn;
 
       // Extract headers
     const headerRows = table.querySelectorAll('thead tr th');
@@ -107,6 +108,7 @@ async function exportTransactionsPDF(reportData, reportTitle, cols) {
             dataStyle.push('right');
         } else if(thText === 'Action') {
             dataStyle.push('none');
+            actionColumn = index + 1;
         } else {
             dataStyle.push('left');
         }
@@ -123,9 +125,14 @@ async function exportTransactionsPDF(reportData, reportTitle, cols) {
     const dataRows = table.querySelectorAll('tbody tr');
     dataRows.forEach(tr => {
         const rowData = [];
+        const actionValue = tr.querySelector(`td:nth-child(${actionColumn}`).innerText;
         tr.querySelectorAll('td').forEach((td, index) => {
             if(dataStyle[index] != 'none') {
-                rowData.push({ text: td.innerText, alignment: dataStyle[index], style: 'tableData' });
+                if(actionValue == '') {
+                    rowData.push({ text: td.innerText, alignment: dataStyle[index], style: 'tableTotal' });
+                } else {
+                    rowData.push({ text: td.innerText, alignment: dataStyle[index], style: 'tableData' });
+                }
             }
         });
         data.push(rowData);
@@ -175,7 +182,12 @@ async function exportTransactionsPDF(reportData, reportTitle, cols) {
                 fontSize: 14
             },
             tableData: {
-                fontSize: 9
+                fontSize: 8
+            },
+            tableTotal: {
+                fontSize: 10,
+                bold: true,
+                marginTop: 20
             }
         }
     };
@@ -407,7 +419,7 @@ async function processCSVImport(csvText) {
                     // console.log('📊 Bulk import statistics:', stats);
                     
                     // Refresh the transactions table to show new data
-                    await updateTransactions();
+                    await updateTransactionsReport();
                     // Always refresh dashboard to update account balances
                     await updateDashboard();
                     // Invalidate Accounts Cache
@@ -533,7 +545,6 @@ async function updateTransactionsPeriod() {
         showNotification('Failed to update Transaction Detail report', 'error');
     }
 }
-
 
 async function updateTransactionsPage(transactions) {
 
