@@ -1,6 +1,6 @@
 {
   "name": "checkbook-pro",
-  "version": "1.0.6",
+  "version": "1.11.1",
   "description": "Home Financial App - Desktop Version",
   "main": "main.js",
   "scripts": {
@@ -43,7 +43,9 @@
       "settings server.json",
       "node_modules/**/*",
       "!node_modules/.cache",
-      "style.css"
+      "js/**/*",
+      "css/style.css",
+      "images/**/*"
     ],
     "win": {
       "target": "nsis"

@@ -55,9 +55,9 @@ async function closeEditTransactionModal() {
     // Close the Edit Transaction modal
     closeModal('edit-transaction-modal');
 
+    invalidateAccountsCache('Transacion Edited - Return to Transaction Page or Reconcile Modal');
+    await loadBalances();
     if(returnSource === 'transaction-page') {
-        invalidateAccountsCache('Return to Transactions Page');
-        await loadBalances();
         await updateTransactionsPeriod();
     } else {
         await openReconcileModal(returnAccountId);
@@ -69,7 +69,6 @@ async function closeReconcileModal() {
     await loadBalances();
     await updateRegister();
     closeModal('reconcile-modal');
-
 }
 
 function closeModal(modalId) {
@@ -81,39 +80,39 @@ function closeModal(modalId) {
 }
 
 async function deleteTransactionFromReconcile(transactionId) {
-            try {
-                const transaction = await loadTransactionById(transactionId);
+    try {
+        const transaction = await loadTransactionById(transactionId);
 
-                // Store the current account ID from reconcile modal for returning
-                const reconcileModal = document.getElementById('reconcile-modal');
-                const returnAccountId = reconcileModal ? reconcileModal.getAttribute('data-account-id') : null;
-                
-                // Check if we're in the Transaction List Modal to track source
-                //const transactionListModal = document.getElementById('list-transactions-modal');
-                const deleteModal = document.getElementById('delete-confirmation');
-                
-                // Set up delete confirmation modal for transaction
-                deleteModal.setAttribute('data-delete-type', 'transaction');
-                deleteModal.setAttribute('data-delete-id', transactionId);
-                
-                // Populate transaction details
-                const detailsDiv = document.getElementById('delete-item-details');
-                detailsDiv.querySelector('div:first-child').textContent = 'Transaction to delete:';
-                detailsDiv.querySelector('div:last-child').innerHTML = `
-                    <strong>Date:</strong> ${formatDate(transaction.transaction_date)}<br>
-                    <strong>Amount:</strong> ${formatCurrency(Math.abs(transaction.amount))}<br>
-                    <strong>Description:</strong> ${transaction.description || 'No description'}
-                `;
-                
-                // Close reconcile modal and open delete confirmation
-                closeModal('reconcile-modal');
-                openModal('delete-confirmation');
-                await openReconcileModal(returnAccountId);
+        // Store the current account ID from reconcile modal for returning
+        const reconcileModal = document.getElementById('reconcile-modal');
+        const returnAccountId = reconcileModal ? reconcileModal.getAttribute('data-account-id') : null;
+        
+        // Check if we're in the Transaction List Modal to track source
+        //const transactionListModal = document.getElementById('list-transactions-modal');
+        const deleteModal = document.getElementById('delete-confirmation');
+        
+        // Set up delete confirmation modal for transaction
+        deleteModal.setAttribute('data-delete-type', 'transaction');
+        deleteModal.setAttribute('data-delete-id', transactionId);
+        
+        // Populate transaction details
+        const detailsDiv = document.getElementById('delete-item-details');
+        detailsDiv.querySelector('div:first-child').textContent = 'Transaction to delete:';
+        detailsDiv.querySelector('div:last-child').innerHTML = `
+            <strong>Date:</strong> ${formatDate(transaction.transaction_date)}<br>
+            <strong>Amount:</strong> ${formatCurrency(Math.abs(transaction.amount))}<br>
+            <strong>Description:</strong> ${transaction.description || 'No description'}
+        `;
+        
+        // Close reconcile modal and open delete confirmation
+        closeModal('reconcile-modal');
+        openModal('delete-confirmation');
+        await openReconcileModal(returnAccountId);
 
-            } catch (error) {
-                console.error('Error opening delete transaction modal:', error);
-                showNotification('Failed to load transaction for deletion', 'error');
-            }
+    } catch (error) {
+        console.error('Error opening delete transaction modal:', error);
+        showNotification('Failed to load transaction for deletion', 'error');
+    }
 
 }
 
@@ -203,6 +202,7 @@ async function handleAddTransactionSubmit(form) {
     if (!transactionData.transaction_date) {
         throw new Error('Transaction date is required');
     }
+    preservedDate = transactionData.transaction_date;
     // Get the selected account to check if it's "Other"
     const accounts = await getAccountsFromCache();
     const toAccount = accounts.find(acc => acc.id === transactionData.to_account_id);
@@ -507,6 +507,7 @@ async function handleReconcileSubmit(form) {
         showNotification(`Reconciliation completed successfully! ${transactionIds.length} transactions reconciled.`, 'success');
         
         // Refresh dashboard and assets/liabilities after reconciliation
+        invalidateAccountsCache('Return to Reconcile Modal');
         await updateDashboard();
         if (currentPage === 'register') {
             await updateRegister();
@@ -534,11 +535,15 @@ async function handleSubmit(event) {
                 // Set today's date as default
                 const dateField = form.querySelector('[name="date"]');
                 if (dateField) {
-                    const today = new Date();
-                    const year = today.getFullYear();
-                    const month = String(today.getMonth() + 1).padStart(2, '0');
-                    const day = String(today.getDate()).padStart(2, '0');
-                    dateField.value = `${year}-${month}-${day}`;
+                    if (preservedDate) {
+                        dateField.value = preservedDate;
+                    } else {
+                        const today = new Date();
+                        const year = today.getFullYear();
+                        const month = String(today.getMonth() + 1).padStart(2, '0');
+                        const day = String(today.getDate()).padStart(2, '0');
+                        dateField.value = `${year}-${month}-${day}`;
+                    }
                 }
                 
                 // Refresh the account balance in the modal if there's a preset account
@@ -691,32 +696,53 @@ async function openReconcileModal(accountId) {
         console.error('Error loading data for reconcile modal:', error);
         showNotification('Failed to load reconciliation data', 'error');
     }
-}      
+}
 
 async function populateAccountSelects(container) {
     try {
         const accounts = await getAccountsFromCache();
         const selects = container.querySelectorAll('select');
+
+        const typeOrder = { 'income': 1, 'expense': 2, 'liability': 3, 'asset': 4, 'equity': 5 };
         
+        // Define the color mapping for parent entries
+        const typeColors = {
+            'expense': 'red',
+            'income': 'green',
+            'liability': 'blue',
+            'asset': 'blue',
+            'equity': 'blue'
+        };
+
         selects.forEach(select => {
             if (select.name === 'fromAccount' || select.name === 'toAccount' || select.classList.contains('account-select')) {
-                // Sort accounts by account code for better organization
+        
                 const accountsArray = Array.isArray(accounts) ? accounts : [];
-                const sortedAccounts = accountsArray.sort((a, b) => (a.account_code || '').localeCompare(b.account_code || ''));
-                
-                select.innerHTML = '<option value="">Select Account</option>' +
-                    sortedAccounts.map(account => {
-                        // Parent accounts have no parent_code (they are top-level)
-                        const isParent = !account.parent_code;
-                        
-                        if (isParent) {
-                            // Parent accounts: bold, blue color, and disabled
-                            return `<option value="" disabled style="font-weight: bold; color: var(--banking-blue); background-color: #f8fafc;">${account.account_name}</option>`;
-                        } else {
-                            // Child accounts: indented, normal styling, selectable
-                            return `<option value="${account.id}" style="padding-left: 20px;">&nbsp;&nbsp;&nbsp;&nbsp;${account.account_name}</option>`;
-                        }
-                    }).join('');
+
+                const sortedAccounts = accountsArray.sort((a, b) => {
+                    const typeA = typeOrder[a.account_type] || 99;
+                    const typeB = typeOrder[b.account_type] || 99;
+                    
+                    if (typeA !== typeB) return typeA - typeB;
+                    return (a.account_code || '').localeCompare(b.account_code || '');
+                });
+
+                select.innerHTML = '<option value="">Select Account</option>' + sortedAccounts.map(account => {
+                    const isParent = !account.parent_code;
+                    
+                    if (isParent) {
+                        // Determine the color based on the account type
+                        const textColor = typeColors[account.account_type?.toLowerCase()] || 'black';
+
+                        return `<option value="" disabled style="font-weight: bold; color: ${textColor}; background-color: #f8fafc;">
+                                    ${account.account_name.toUpperCase()} (${account.account_type})
+                                </option>`;
+                    } else {
+                        return `<option value="${account.id}">
+                                    &nbsp;&nbsp;&nbsp;&nbsp;${account.account_name} [${account.account_code}]
+                                </option>`;
+                    }
+                }).join('');
             }
         });
     } catch (error) {
@@ -725,66 +751,54 @@ async function populateAccountSelects(container) {
 }
 
 // Modal population functions
+let preservedDate = null;
 async function populateAddTransactionModal(account, hasPresetAccount = false) {
-    // console.log('populateAddTransactionModal called with:', { account, hasPresetAccount });
-    
     const modal = document.getElementById('add-transaction-modal');
     if (!modal) {
         console.error('Add transaction modal not found');
         return;
     }
     
-    // Reset form completely when opening modal
     const form = modal.querySelector('form');
+    const dateField = form ? form.querySelector('[name="date"]') : null;
+
     if (form) {
         form.reset();
-        // Set today's date as default
-        const dateField = form.querySelector('[name="date"]');
+        
+        // Re-apply the preserved date if it exists, otherwise set to today
         if (dateField) {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            dateField.value = `${year}-${month}-${day}`;
+            if (preservedDate) {
+                dateField.value = preservedDate;
+                console.log('Date Field Value', dateField.value);
+            } else {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                dateField.value = `${year}-${month}-${day}`;
+            }
         }
     }
     
-    // Clear any data attributes to ensure fresh state
     modal.removeAttribute('data-account-id');
     modal.removeAttribute('data-return-account-id');
     modal.removeAttribute('data-return-source');
     
     const fromAccountInfo = modal.querySelector('#from-account-info');
     const fromAccountSelector = modal.querySelector('#from-account-selector');
-    
     const accountData = account.data;
     
     fromAccountInfo.style.display = 'block';
     fromAccountSelector.style.display = 'none';
     
-    // Update account info in the header
     const infoValues = fromAccountInfo.querySelectorAll('.info-value');
-    if (infoValues[0]) {
-        infoValues[0].textContent = accountData.account_name || 'Unknown Account';
-    }
+    if (infoValues[0]) infoValues[0].textContent = accountData.account_name || 'Unknown Account';
     if (infoValues[1]) {
         infoValues[1].textContent = formatCurrency((accountData.account_balance || 0) + (accountData.opening_balance || 0));
     }
     
-    // Store account ID for form submission
     modal.setAttribute('data-account-id', accountData.id);
-  
-    // Set today's date as default
-    const dateField = modal.querySelector('[name="date"]');
-    if (dateField) {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        dateField.value = `${year}-${month}-${day}`;
-    }
     
-    // Populate account dropdowns with real data
     await populateAccountSelects(modal);
 }
 

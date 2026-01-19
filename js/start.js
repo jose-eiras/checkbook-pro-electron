@@ -406,6 +406,8 @@ function updateRecentTransactions(transactions) {
         const isCredit = transaction.transaction_type === 'credit';
         const displayAmount = isCredit ? amount : -amount;
         const amountColor = isCredit ? 'var(--banking-green)' : 'var(--banking-red)';
+
+        //console.log('Rendering transaction:', transaction.id, 'Date:', transaction.transaction_date);
         
         return `
             <tr style="border-bottom: 1px solid #f3f4f6;">
@@ -419,4 +421,12 @@ function updateRecentTransactions(transactions) {
             </tr>
         `;
     }).join('');
+    // Save date of the first transaction row.
+    const topDate = tbody.querySelector('tr td')?.textContent;
+    // Convert string to a Date object
+    const topDateObj = new Date(topDate);
+    // Format it to YYYY-MM-DD
+    preservedDate = topDateObj.toISOString().split('T')[0];
+
+    //console.log("Date from the first TD:", preservedDate);
 }
